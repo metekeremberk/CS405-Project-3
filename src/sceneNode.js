@@ -8,37 +8,37 @@
  */
 
 class SceneNode {
-    constructor(meshDrawer, trs, parent = null) {
-        this.meshDrawer = meshDrawer;
-        this.trs = trs;
-        this.parent = parent;
-        this.children = [];
+	constructor(meshDrawer, trs, parent = null) {
+		this.meshDrawer = meshDrawer;
+		this.trs = trs;
+		this.parent = parent;
+		this.children = [];
 
-        if (parent) {
-            this.parent.__addChild(this);
-        }
-    }
+		if (parent) {
+			this.parent.__addChild(this);
+		}
+	}
 
-    __addChild(node) {
-        this.children.push(node);
-    }
+	__addChild(node) {
+		this.children.push(node);
+	}
 
-    draw(mvp, modelView, normalMatrix, modelMatrix) {
-        /**
-         * @Task1 : Implement the draw function for the SceneNode class.
-         */
-        
-        var transformedMvp = mvp;
-        var transformedModelView = modelView;
-        var transformedNormals = normalMatrix;
-        var transformedModel = modelMatrix;
+	draw(mvp, modelView, normalMatrix, modelMatrix) {
+		//#region Task 1
+		var transformedMvp = MatrixMult(mvp, this.trs.getTransformationMatrix());
+		var transformedModelView = MatrixMult(modelView, this.trs.getTransformationMatrix());
+		var transformedNormals = MatrixMult(normalMatrix, this.trs.getTransformationMatrix());
+		var transformedModel = MatrixMult(modelMatrix, this.trs.getTransformationMatrix());
 
-        // Draw the MeshDrawer
-        if (this.meshDrawer) {
-            this.meshDrawer.draw(transformedMvp, transformedModelView, transformedNormals, transformedModel);
-        }
-    }
+		// Draw the MeshDrawer
+		if (this.meshDrawer) {
+			this.meshDrawer.draw(transformedMvp, transformedModelView, transformedNormals, transformedModel);
+		}
 
-    
-
+		// Draw the children
+		this.children.forEach((child) =>
+			child.draw(transformedMvp, transformedModelView, transformedNormals, transformedModel)
+		);
+		// #endregion Task 1
+	}
 }
