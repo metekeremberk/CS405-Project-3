@@ -1,7 +1,7 @@
 /**
  * @class Meshdrawer
  * @description Helper class for drawing meshes.
- * 
+ *
  */
 class MeshDrawer {
 	constructor(isLightSource = false) {
@@ -9,20 +9,20 @@ class MeshDrawer {
 		this.prog = InitShaderProgram(meshVS, meshFS);
 
 		// get attribute locations
-		this.positionLoc = gl.getAttribLocation(this.prog, 'position');
-		this.normalLoc = gl.getAttribLocation(this.prog, 'normal');
-		this.texCoordLoc = gl.getAttribLocation(this.prog, 'texCoord');
+		this.positionLoc = gl.getAttribLocation(this.prog, "position");
+		this.normalLoc = gl.getAttribLocation(this.prog, "normal");
+		this.texCoordLoc = gl.getAttribLocation(this.prog, "texCoord");
 
 		// get uniform locations
 		//vertex
-		this.mvpLoc = gl.getUniformLocation(this.prog, 'mvp');
-		this.mvLoc = gl.getUniformLocation(this.prog, 'mv');
-		this.mvNormalLoc = gl.getUniformLocation(this.prog, 'normalMV');
-		this.modelMatrixLoc = gl.getUniformLocation(this.prog, 'modelMatrix');
+		this.mvpLoc = gl.getUniformLocation(this.prog, "mvp");
+		this.mvLoc = gl.getUniformLocation(this.prog, "mv");
+		this.mvNormalLoc = gl.getUniformLocation(this.prog, "normalMV");
+		this.modelMatrixLoc = gl.getUniformLocation(this.prog, "modelMatrix");
 
 		// fragment
-		this.isLightSourceLoc = gl.getUniformLocation(this.prog, 'isLightSource');
-		this.samplerLoc = gl.getUniformLocation(this.prog, 'tex');
+		this.isLightSourceLoc = gl.getUniformLocation(this.prog, "isLightSource");
+		this.samplerLoc = gl.getUniformLocation(this.prog, "tex");
 
 		// create array buffers
 		this.positionBuffer = gl.createBuffer();
@@ -33,7 +33,6 @@ class MeshDrawer {
 
 		this.numTriangles = 0;
 		this.isLightSource = isLightSource;
-
 	}
 
 	setMesh(vertPos, texCoords, normals) {
@@ -49,9 +48,8 @@ class MeshDrawer {
 		this.numTriangles = vertPos.length / 3;
 	}
 
-
 	draw(matrixMVP, matrixMV, matrixNormal, modelMatrix) {
-		gl.useProgram(this.prog)
+		gl.useProgram(this.prog);
 
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 		// Set uniform parameters
@@ -60,7 +58,6 @@ class MeshDrawer {
 		gl.uniformMatrix4fv(this.mvNormalLoc, false, matrixNormal);
 		gl.uniformMatrix4fv(this.modelMatrixLoc, false, modelMatrix);
 		gl.uniform1i(this.isLightSourceLoc, this.isLightSource);
-
 
 		// vertex positions
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
@@ -72,12 +69,10 @@ class MeshDrawer {
 		gl.enableVertexAttribArray(this.normalLoc);
 		// // vertex texture coordinates
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordBuffer);
-		gl.vertexAttribPointer(this.texCoordLoc, 2, gl.FLOAT,false, 0, 0);
+		gl.vertexAttribPointer(this.texCoordLoc, 2, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(this.texCoordLoc);
 
 		gl.drawArrays(gl.TRIANGLES, 0, this.numTriangles);
-
-		
 	}
 
 	// This method is called to set the texture of the mesh.
@@ -86,13 +81,7 @@ class MeshDrawer {
 		// const texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 		// You can set the texture image data using the following command.
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGB,
-			gl.RGB,
-			gl.UNSIGNED_BYTE,
-			img);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
 
 		// Set texture parameters
 		if (isPowerOf2(img.width) && isPowerOf2(img.height)) {
@@ -103,14 +92,11 @@ class MeshDrawer {
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		}
 
-
 		gl.useProgram(this.prog);
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 		gl.uniform1i(this.samplerLoc, 0);
-
 	}
-
 }
 
 const meshVS = `
@@ -140,10 +126,9 @@ void main()
 }
 `;
 
-
 /**
  * @Task2 : Update the fragment shader for diffuse and specular lighting.
- * 
+ *
  */
 const meshFS = `
 precision mediump float;
@@ -167,15 +152,18 @@ void main()
 	float spec = 0.0;
 	float phongExp = 8.0;
 
-	/////////////////////////////////////////////////////////////////////////////
-	// PLEASE DO NOT CHANGE ANYTHING ABOVE !!!
-	// Calculate the diffuse and specular lighting below.
+	// #region Task 2
+	// Compute the diffuse lighting component
+	float diffuseFactor = dot(normal, lightdir);
+	diff = max(diffuseFactor, 0.0);
 
+	// Compute the specular lighting component
+	vec3 viewDir = normalize(-vPosition);
+	vec3 reflectDir = reflect(-lightdir, normal);
+	float specularFactor = dot(viewDir, reflectDir);
+	spec = pow(max(specularFactor, 0.0), phongExp);
+	// #endregion Task 2
 
-
-	// PLEASE DO NOT CHANGE ANYTHING BELOW !!!
-	/////////////////////////////////////////////////////////////////////////////
-	
 	if (isLightSource) {
 		gl_FragColor = texture2D(tex, vTexCoord) * vec4(1.0, 1.0, 1.0, 1.0);
 	} else {
@@ -183,4 +171,3 @@ void main()
 	}
 }
 `;
-
