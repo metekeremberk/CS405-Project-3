@@ -182,10 +182,10 @@
                 var normalMatrix = getNormalMatrix(modelMatrix);
                 sunNode.trs.setRotation(0, 0, zRotation);
                 earthNode.trs.setRotation(0, 0, zRotation * 2);
-                /**
-                 *@task3 : add rotation to mars on z-axis.
-                    the rotation should be 1.5 * zRotation 
-                */
+
+                // #region Task 3
+                marsNode.trs.setRotation(0, 0, zRotation * 1.5);
+                // #endregion Task 3
 
                 sunNode.draw(mvp, modelViewMatrix, normalMatrix, modelMatrix);
                 requestAnimationFrame(renderLoop);
@@ -227,16 +227,16 @@
                 moonTrs.setScale(0.25, 0.25, 0.25);
                 moonNode = new SceneNode(moonMeshDrawer, moonTrs, earthNode);
 
-                /**
-                 * @Task3 : Add Mars to the solar system
-                 * Mars should be a child of the sun.
-                 * Mars should use sphere as the mesh object.
-                 * Mars should be translated by -6 units on the X axis with respect to the sun 
-                 * Mars should be scaled to 0.35 for x,y and z coordinates
-                 * use the image on the link below as texture:
-                 * @link : https://i.imgur.com/Mwsa16j.jpeg
-                 * 
-                 */
+                // #region Task 3
+                marsMeshDrawer = new MeshDrawer();
+
+                marsMeshDrawer.setMesh(sphereBuffers.positionBuffer, sphereBuffers.texCoordBuffer, sphereBuffers.normalBuffer);
+                setTextureImg(marsMeshDrawer, "https://i.imgur.com/Mwsa16j.jpeg");
+                marsTrs = new TRS();
+                marsTrs.setTranslation(-6, 0, 0);
+                marsTrs.setScale(0.35, 0.35, 0.35);
+                marsNode = new SceneNode(marsMeshDrawer, marsTrs, sunNode);
+                // #endregion Task 3
 
                 renderLoop();
             };
